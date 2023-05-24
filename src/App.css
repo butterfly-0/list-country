@@ -1,0 +1,116 @@
+.App {
+  font-family: Arial, sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+}
+.Border {
+  padding: 10px;
+}
+
+.Border div {
+  margin: 5px;
+  padding: 1px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.img-country {
+  display: flex;
+  align-items: flex-end;
+  width: 300px;
+  height: auto; 
+}
+
+.Border div:hover {
+  background-color: #acacac;
+}
+.pagination-container .active a {
+  background-color: #d3d3d3;
+  color: #000;
+}
+img {
+  width: 30px;
+  height: 20px;
+  margin-right: 10px;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination-container ul {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pagination-container li {
+  margin: 0 2px;
+}
+
+.pagination-container a {
+  color: #ffffff;
+  font-size: 16px;
+  padding: 5px 5px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+.button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.button-container button {
+  margin: 0 5px;
+  padding:5px 10px;
+  border: none;
+  border-radius: 100px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffffff;
+  background-color: #012a55;
+  cursor: pointer;
+}
+
+.button-container button:hover {
+  background-color: #0056b3;
+}
+
+.button-container button:last-child {
+  background-color: #4b0007;
+}
+
+.button-container button:last-child:hover {
+  background-color: #fa0025;
+}
+.selected-country {
+  margin-left: 170px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-top: 20px;
+}
+
+
+.selected-country p {
+  text-align: center;
+}
+
+.Prapor{
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 20px;
+
+  /* margin-top: 20px; */
+}
+
