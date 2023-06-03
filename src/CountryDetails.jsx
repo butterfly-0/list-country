@@ -1,31 +1,42 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+// CountryDetails.jsx
 
-function CountryDetails({ match }) {
-  const countryCode = match.params.countryCode;
-  const [country, setCountry] = useState(null);
+import React, { useEffect, useState } from 'react';
+import { useParams, Link } from 'react-router-dom';
+
+function CountryDetails({ hideApp, showApp }) {
+  const { countryName } = useParams();
+  const [countryData, setCountryData] = useState(null);
 
   useEffect(() => {
-    axios
-      .get(`https://restcountries.com/v3.1/alpha/${countryCode}`)
-      .then(response => {
-        setCountry(response.data[0]);
+    fetch(`https://restcountries.com/v3.1/name/${countryName}`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setCountryData(data[0]);
+          hideApp(); // Приховати `div App`
+        }
       })
-      .catch(error => {
-        console.log(error);
-      });
-  }, [countryCode]);
+      .catch((error) => console.log(error));
+  }, [countryName, hideApp]);
 
-  if (!country) {
+  useEffect(() => {
+    return () => {
+      showApp(); // Показати `div App` при виході зі сторінки деталей
+    };
+  }, [showApp]);
+
+  if (!countryData) {
     return <div>Loading...</div>;
   }
 
+  const countryFlag = countryData.flags.png;
+  const countryFullName = countryData.name.common;
+
   return (
-    <div>
-      <h2>Деталі країни: {country.name.common}</h2>
-      <p>Столиця: {country.capital}</p>
-    <p>Регіон: {country.region}</p>
-    
+    <div className="country-details">
+      <h2>Деталі країни: {countryFullName}</h2>
+      <img src={countryFlag} alt="Прапор країни" />
+      <Link to="/">Повернутися до списку країн</Link>
     </div>
   );
 }
