@@ -10,12 +10,13 @@ function SelectedCountry({ selectedCountry }) {
       {selectedCountry.name.common !== 'Russia' ? (
         <div>
           <div>
-            <img className="img-country" src={selectedCountry.coatOfArms?.svg} alt={`${selectedCountry.name.common} герб`} />
+            <img className="img-country" src={selectedCountry.coatOfArms?.svg} alt='' />
           </div>
-          <div>
+          <div className='text-size'>
             <p>Країна: {selectedCountry.name.common}</p>
-            <p>Регіон: {selectedCountry.region}</p>
+            <p>Столиця: {selectedCountry.capital}</p>
             <p>Площа: {selectedCountry.area} км²</p>
+            <p>Континент: {selectedCountry.continents}</p>
           </div>
         </div>
       ) : (
@@ -56,52 +57,121 @@ function CountryDetails() {
     return <div>Loading...</div>;
   }
 
-  const countryFlag = countryData.flags.png;
+  const countryFlag = countryData.flags.svg;
+  const countryFlags = countryData.coatOfArms.svg;
   const countryFullName = countryData.name.common;
   const countryRegions = countryData.region;
-  const countryAreas = countryData.area;
-  const countryCodes = countryData.cca2;
+  const countrySubregion = countryData.subregion;
+  const countryStatus = countryData.status;
   const countryCapital = countryData.capital;
+  const countryAltSpellings = countryData.altSpellings;
+  const countryAreas = countryData.area;
+  const countryContinents = countryData.continents;
+  const countryStartOfWeek = countryData.startOfWeek;
+  const countryCodes = countryData.cca2;
   const countryPopulation = countryData.population;
   const countryBorders = countryData.borders;
+  const countryFifa = countryData.fifa;
+  const countryTld = countryData.tld;
+  const countryOfficial = countryData.official;
+  const countryFlagEmoji = countryData.flags.emoji;
+  const countryLandlock = countryData.landlocked;
+  const countryIndependent = countryData.independent;
+  const countryUnMember = countryData.unMember;
+  const countryTimezones = countryData.timezones;
+  const countryCurrencies = Object.values(countryData.currencies || {});
 
   return (
-    
     <div className="country-details">
-      <img src={countryFlag} alt="Прапор країни" />
-      <p className='choise'>Назва країни: {countryFullName}</p>
-      <p>Регіон: {countryRegions}</p>
-      <p>Площа: {countryAreas} км²</p>
-      <p>Код країни: {countryCodes}</p>
-      <p>Столиця: {countryCapital}</p>
-      <p>Населення: {countryPopulation}</p>
-      <p>Країни, що межують:</p>
-      <ul>
-        {neighboringCountries.map((country) => (
-          <li key={country.name.common}>
-            <Link to={`/${country.name.common}`}>{country.name.common}</Link>
-          </li>
-        ))}
-      </ul>
-      <Link to="/">Повернутися на головну сторінку</Link>
-      
+            <Link className="link" to="/">
+          Повернутися на головну сторінку
+        </Link>
+      <div className="country-info">
+
+        <img src={countryFlag} alt="Прапор країни" />
+        <i>Прапор країни</i>
+        <p className="choise">Назва країни: {countryFullName}</p>
+        <p>Регіон: {countryRegions}</p>
+        <p>Підрегіон: {countrySubregion}</p>
+        <p>Статус: {countryStatus}</p>
+        <p>Столиця: {countryCapital}</p>
+        <p>Альтернативне написання: {countryAltSpellings.join(', ')}</p>
+        <p>Площа: {countryAreas} км²</p>
+        <p>Континенти: {countryContinents.join(', ')}</p>
+        <p>Старт тижня: {countryStartOfWeek}</p>
+        <p>Код країни: {countryCodes}</p>
+        <p>Населення: {countryPopulation}</p>
+        <p>Fifa: {countryFifa}</p>
+        <p>Tld: {countryTld}</p>
+        <p>Official: {countryOfficial}</p>
+        <p>Landlocked: {countryLandlock ? 'Так' : 'Ні'}</p>
+        <p>Independent: {countryIndependent ? 'Так' : 'Ні'}</p>
+        <p>UN Member: {countryUnMember ? 'Так' : 'Ні'}</p>
+        <p>Часові пояси: {countryTimezones.join(', ')}</p>
+        <p>Валюти: {countryCurrencies.join(', ')}</p>
+        <p>Країни, що межують:</p>
+        <ul>
+          {neighboringCountries.map((country) => (
+            <li key={country.name.common}>
+              <Link to={`/${country.name.common}`}>{country.name.common}</Link>
+            </li>
+          ))}
+        </ul>
+   
+      </div>
     </div>
   );
 }
+document.body.style.display = 'initial';
 
 function CountryList() {
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [countries, setCountries] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedRegion, setSelectedRegion] = useState('');
+  const [selectedSubregion, setSelectedSubregion] = useState('');
+  const [regions, setRegions] = useState([]);
+  const [subregions, setSubregions] = useState([]);
+
   const itemsPerPage = 10;
 
   useEffect(() => {
     axios
       .get('https://restcountries.com/v3.1/all')
-      .then((response) => setCountries(response.data))
+      .then((response) => {
+        const uniqueRegions = [...new Set(response.data.map((country) => country.region))];
+        setCountries(response.data);
+        setRegions(uniqueRegions);
+        setSubregions([]);
+        setSelectedRegion('');
+        setSelectedSubregion('');
+      })
       .catch((error) => console.log(error));
   }, []);
+
+  useEffect(() => {
+    if (selectedRegion === '' && selectedSubregion === '') {
+      resetSorting();
+    } else {
+      const filteredCountries = countries.filter((country) => {
+        if (selectedRegion !== '' && selectedSubregion !== '') {
+          return country.region.includes(selectedRegion) && country.subregion === selectedSubregion;
+        } else if (selectedRegion !== '') {
+          return country.region.includes(selectedRegion);
+        } else {
+          return country.subregion === selectedSubregion;
+        }
+      });
+      setCountries(filteredCountries);
+      setCurrentPage(1);
+    }
+  }, [selectedRegion, selectedSubregion]);
+
+  useEffect(() => {
+    const uniqueSubregions = [...new Set(countries.map((country) => country.subregion))];
+    setSubregions(uniqueSubregions);
+  }, [countries]);
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -119,16 +189,14 @@ function CountryList() {
     window.location.href = `/${country.name.common}`;
   };
 
-  const sortCountriesByRegion = () => {
-    const sortedCountries = [...countries].sort((a, b) => a.region.localeCompare(b.region));
-    setCountries(sortedCountries);
-    setCurrentPage(1);
+  const handleRegionSelect = (event) => {
+    setSelectedRegion(event.target.value);
+    setSelectedSubregion('');
   };
 
-  const sortCountriesByName = () => {
-    const sortedCountries = [...countries].sort((a, b) => a.name.common.localeCompare(b.name.common));
-    setCountries(sortedCountries);
-    setCurrentPage(1);
+  const handleSubregionSelect = (event) => {
+    setSelectedSubregion(event.target.value);
+    setSelectedRegion('');
   };
 
   const resetSorting = () => {
@@ -159,13 +227,28 @@ function CountryList() {
       <div className="App">
         <div className="header">
           <h2>Список країн</h2>
-          <div className="button-container">
-            <button onClick={sortCountriesByRegion}>Сортувати за регіоном</button>
-            <button onClick={sortCountriesByName}>Сортувати за назвою</button>
-            <button onClick={resetSorting}>Скинути сортування</button>
-          </div>
+          <input className='ged' type="text" placeholder="Пошук країни" onChange={handleSearch} />
+
           <div className="search-container">
-            <input type="text" placeholder="Пошук країни" onChange={handleSearch} />
+            <select className='Sort' value={selectedRegion} onChange={handleRegionSelect}>
+              <option value="">Всі регіони</option>
+              {regions.map((region) => (
+                <option key={region} value={region}>
+                  {region}
+                </option>
+              ))}
+            </select>
+            <select className='Sort-2' value={selectedSubregion} onChange={handleSubregionSelect}>
+              <option value="">Всі підрегіони</option>
+              {subregions.map((subregion) => (
+                <option key={subregion} value={subregion}>
+                  {subregion}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="button-container">
+            <button onClick={resetSorting}>Скинути сортування</button>
           </div>
         </div>
         <div className="country-list">
@@ -185,19 +268,22 @@ function CountryList() {
               </div>
             ))}
         </div>
-        <div className="pagination-container">
+        <div className="pagination">
           <Pagination
             activePage={currentPage}
             itemsCountPerPage={itemsPerPage}
             totalItemsCount={totalItemsCount}
             pageRangeDisplayed={5}
             onChange={handlePageChange}
+            itemClass="page-item"
+            linkClass="page-link"
           />
         </div>
       </div>
     </div>
   );
 }
+
 
 function App() {
   return (
